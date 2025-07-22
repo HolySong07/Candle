@@ -1,0 +1,25 @@
+import cloudinary from 'cloudinary';
+
+cloudinary.config({
+	cloud_name: process.env.CLOUD_NAME,
+	api_key: process.env.CLOUD_API_KEY,
+	api_secret: process.env.CLOUD_API_SECRET,
+});
+
+
+queryClient.invalidateQueries(['posts']);
+
+ГУГЛ РЕКАПЧА
+6Ld9_2UrAAAAAAHl_KFMGmCuqM-hhtk7NhCwOgXj
+
+secret
+6Ld9_2UrAAAAAD-DJrOkuSG1k5NmhIlV9CcNtY9Z
+
+
+логин пароль юзера к проекту
+holysong87sds@gmail.com
+rwerwr345r34
+
+
+Candle (для гугл отправки писем с джемейл)
+fhus oevd ywtl vtjd

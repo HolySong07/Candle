@@ -1,0 +1,150 @@
+//// второй вариант рабочий с номр логаут и логин
+
+import { Outlet } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import { useEffect } from 'react';
+
+import classes from './styles/layout.module.css';
+import Sidebar from '../components/Sidebar';
+
+// provider
+import { useState, createContext, useContext } from 'react';
+import customFetch from '../utils/customFetch';
+import { useNavigate } from 'react-router-dom';
+import { checkDefaultTheme } from '../App';
+import { toast } from 'react-toastify';
+
+import { useLoaderData } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { QueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+
+import { inject401Interceptor } from '../utils/customFetch';
+
+type DashboardContextType = {
+	user: { [key: string]: string };
+	isDarkTheme: boolean;
+	toggleDarkTheme: () => void;
+	logoutUser: () => void;
+};
+
+const DashboardContext = createContext<DashboardContextType | undefined>(
+	undefined
+);
+
+/* export const loader = (queryClient: QueryClient) => async () => {
+	try {
+		return await queryClient.ensureQueryData({
+			queryKey: ['user'],
+			queryFn: async () => {
+				const { data } = await customFetch('/users/current-user');
+				console.log(data);
+				return data.user;
+			},
+			staleTime: 10000 * 60 * 10, // кэш на 10 мин
+		});
+	} catch (error) {
+		return null; // или redirect('/login') если неавторизован
+	}
+}; */
+
+export const Layout = () => {
+	const [isDarkTheme, setIsDarkTheme] = useState(checkDefaultTheme());
+	const [isAuthError, setIsAuthError] = useState(false);
+
+	// bonus
+	//const [loggedOut, setLoggedOut] = useState(false);
+
+	const queryClient = useQueryClient();
+
+	const { data: user } = useQuery({
+		queryKey: ['user'],
+		queryFn: async () => {
+			const { data } = await customFetch('/users/current-user');
+			return data.user;
+		},
+		staleTime: 1000 * 60 * 10,
+		// bonus
+
+		//enabled: !loggedOut,
+	});
+
+	console.log(user);
+	//console.log(`from layout`);
+
+	//console.log(user);
+
+	const navigate = useNavigate();
+
+	const toggleDarkTheme = () => {
+		const newDarkTheme = !isDarkTheme;
+		setIsDarkTheme(newDarkTheme);
+		document.body.classList.toggle('dark-theme', newDarkTheme);
+		localStorage.setItem('darkTheme', String(newDarkTheme));
+	};
+
+	/* customFetch.interceptors.response.use(
+		(response) => {
+			return response;
+		},
+		(error) => {
+			if (error?.response?.status === 401) {
+				setIsAuthError(true);
+			}
+			return Promise.reject(error);
+		}
+	); */
+
+	const logoutUser = async () => {
+		await customFetch.get('/auth/logout');
+		await queryClient.removeQueries(['user']);
+		//queryClient.invalidateQueries({ queryKey: ['user'] });
+
+		//bonus
+		//setLoggedOut(true);
+		console.log('out');
+		toast.success('Logged out');
+
+		navigate('/');
+	};
+
+	useEffect(() => {
+		inject401Interceptor(() => setIsAuthError(true));
+	}, []);
+
+	return (
+		<div>
+			<DashboardContext.Provider
+				value={{
+					user,
+					logoutUser,
+					isDarkTheme,
+					toggleDarkTheme,
+				}}
+			>
+				<Navbar />
+				<div>
+					<div className={classes.topWrapper}>
+						<div className={classes.main}>
+							<Outlet />
+						</div>
+						<Sidebar />
+					</div>
+				</div>
+			</DashboardContext.Provider>
+		</div>
+	);
+};
+
+export const useDashboardContext = () => {
+	const context = useContext(DashboardContext);
+	if (!context) {
+		throw new Error(
+			'useDashboardContext must be used within a DashboardContext.Provider'
+		);
+	}
+	return context;
+};
+
+export default Layout;

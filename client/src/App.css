@@ -1,0 +1,12 @@
+.dark-theme {
+	background: #bdbdbd;
+}
+
+.dropdown {
+	display: none;
+}
+
+.show-dropdown {
+	display: block;
+	position: absolute;
+}

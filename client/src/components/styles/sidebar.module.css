@@ -1,0 +1,21 @@
+.header {
+	text-align: center;
+	font-weight: bold;
+}
+
+.listSidebar {
+	padding: 0;
+
+	li {
+		text-align: center;
+		padding-top: 16px;
+
+		&:not(:last-child) {
+			border-bottom: 1px solid gray;
+		}
+	}
+
+	img {
+		margin: 12px auto;
+	}
+}
