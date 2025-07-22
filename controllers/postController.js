@@ -207,23 +207,34 @@ export const getPostFull = async (req, res) => {
 };
 
 export const toggleLike = async (req, res) => {
-	const postId = req.params.id;
-	const userId = req.user.userId;
+	try {
+		const postId = req.params.id;
+		const userId = req.user.userId;
 
-	//console.log(req.user);
+		// Попытаемся убрать лайк
+		const pullResult = await Post.updateOne(
+			{ _id: postId, likes: userId },
+			{ $pull: { likes: userId } }
+		);
 
-	const post = await Post.findById(postId);
+		let liked;
+		if (pullResult.modifiedCount) {
+			// был лайк – удалили
+			liked = false;
+		} else {
+			// не было – добавляем
+			await Post.updateOne({ _id: postId }, { $addToSet: { likes: userId } });
+			liked = true;
+		}
 
-	if (!post) return res.status(404).json({ msg: 'Post not found' });
+		// Получаем текущее число лайков, не затрагивая другие поля
+		const doc = await Post.findById(postId).select('likes').lean();
+		const likesCount = doc?.likes.length || 0;
 
-	const alreadyLiked = post.likes.includes(userId);
-
-	if (alreadyLiked) {
-		post.likes = post.likes.filter((id) => id.toString() !== userId);
-	} else {
-		post.likes.push(userId);
+		console.log(liked, likesCount);
+		return res.json({ liked, likesCount });
+	} catch (err) {
+		console.error(err);
+		return res.status(500).json({ msg: 'Server error' });
 	}
-
-	await post.save();
-	res.json({ likes: post.likes.length, liked: !alreadyLiked });
 };

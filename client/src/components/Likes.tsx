@@ -1,13 +1,12 @@
 import useToggleLike from '../hooks/useToggleLike';
-import { toast } from 'react-toastify';
 
-import { useDashboardContext } from '../pages/Layout';
+interface LikesProps {
+	id: string;
+	likes: string[];
+}
 
-const Likes = ({ id, likes }) => {
-	const { user } = useDashboardContext();
-
+const Likes: React.FC<LikesProps> = ({ id, likes }) => {
 	const { mutate, isPending } = useToggleLike(id);
-	const liked = likes.includes(user?._Id);
 
 	return (
 		<button onClick={() => mutate()} disabled={isPending}>

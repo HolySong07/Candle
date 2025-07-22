@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { useState, useRef } from 'react';
 import { toast } from 'react-toastify';
-import InputMask from 'react-input-mask-next';
+// import InputMask from 'react-input-mask';
+import { IMaskInput } from 'react-imask';
+
 import ReCAPTCHA from 'react-google-recaptcha';
 
 interface SubmitOrderProps {
@@ -19,7 +21,8 @@ const SubmitOrder: React.FC<SubmitOrderProps> = ({ productName }) => {
 	const recaptchaRef = useRef<ReCAPTCHA>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const handleChange = (e) => {
+	type InputChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
+	const handleChange = (e: InputChangeEvent) => {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	};
 
@@ -78,15 +81,15 @@ const SubmitOrder: React.FC<SubmitOrderProps> = ({ productName }) => {
 
 			<div>
 				<label>Phone:</label>
-				<InputMask
-					mask="+38 (099) 999-99-99"
-					value={form.phone}
-					onChange={handleChange}
+				<IMaskInput
+					mask="+{38} (000) 000-00-00"
+					definitions={{ '0': /\d/ }}
+					unmask={false}
 					name="phone"
+					value={form.phone}
+					onAccept={(value: string) => setForm((prev) => ({ ...prev, phone: value }))}
 					required
-				>
-					<input type="tel" />
-				</InputMask>
+				/>
 			</div>
 
 			<div>
