@@ -4,7 +4,11 @@ import { toast } from 'react-toastify';
 import InputMask from 'react-input-mask-next';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-const SubmitOrder = ({ productName }) => {
+interface SubmitOrderProps {
+	productName: string;
+}
+
+const SubmitOrder: React.FC<SubmitOrderProps> = ({ productName }) => {
 	const [form, setForm] = useState({
 		name: '',
 		phone: '',
@@ -19,11 +23,11 @@ const SubmitOrder = ({ productName }) => {
 		setForm({ ...form, [e.target.name]: e.target.value });
 	};
 
-	const handleCaptchaChange = (token) => {
+	const handleCaptchaChange = (token: string | null) => {
 		setCaptchaToken(token || '');
 	};
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!form.name || !form.phone) {
