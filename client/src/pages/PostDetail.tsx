@@ -15,7 +15,7 @@ type Post = {
 	createdAt: string;
 	description: string;
 	imageUrl: string;
-	likes: string;
+	likes: string[];
 };
 
 const fetchPost = async (id: string, lang: string): Promise<Post> => {
@@ -38,8 +38,6 @@ const PostDetail: React.FC = () => {
 
 	if (isLoading) return <div>Loading...</div>;
 	if (isError || !data) return <div>Post not found</div>;
-
-	//console.log(data);
 
 	return (
 		<>
