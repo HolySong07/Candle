@@ -24,14 +24,14 @@ export const contact = async (req, res) => {
 		await transporter.sendMail({
 			//from: email,
 			to: process.env.GMAIL_MY,
-			subject: `Новое сообщение от ${name}`,
+			subject: `New message from ${name}`,
 			text: `My name - ${name}, my number - ${phone}, a wont product - ${product}, Please write to me in ${messenger}`,
 		});
 
-		res.status(200).json({ msg: 'Сообщение отправлено!' });
+		res.status(200).json({ msg: 'Message sent' });
 	} catch (error) {
-		console.error('Ошибка отправки:', error);
-		res.status(500).json({ msg: 'Не удалось отправить сообщение' });
+		console.error('Sending error:', error);
+		res.status(500).json({ msg: 'Failed to send message' });
 	}
 };
 
@@ -231,10 +231,10 @@ export const toggleLike = async (req, res) => {
 		const doc = await Post.findById(postId).select('likes').lean();
 		const likesCount = doc?.likes.length || 0;
 
-		console.log(liked, likesCount);
+		//console.log(liked, likesCount);
 		return res.json({ liked, likesCount });
 	} catch (err) {
-		console.error(err);
+		//console.error(err);
 		return res.status(500).json({ msg: 'Server error' });
 	}
 };
