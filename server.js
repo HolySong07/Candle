@@ -10,7 +10,6 @@ import errorHandlerMiddleware from './middleware/ErroeHandlerMiddleware.js';
 import authenticateUser from './middleware/authMiddleware.js';
 
 // cloudinary
-
 import { v2 as cloudinary } from 'cloudinary';
 import uploadRoute from './routes/upload.js';
 // cloudinary
@@ -18,18 +17,18 @@ import uploadRoute from './routes/upload.js';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+// for get Data from site (req)
 const app = express();
 
-// for get Data from site (req)
-
+// щоб можна було отримати куки (для отримання користувача)
 app.use(express.json());
-app.use(cookieParser()); // чтобы можно было получать куки (для получения пользователя)
+app.use(cookieParser());
 
-// разрешить запросы между разными портами
+// для запитів між різними портами
 app.use(
 	cors({
-		origin: 'http://localhost:5173', // или ['http://localhost:5173']
-		credentials: true, // если используешь cookies
+		origin: 'http://localhost:5173',
+		credentials: true, // якщо використовуєш файли cookie
 	})
 );
 
@@ -37,13 +36,8 @@ import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 import posts from './routes/posts.js';
 
-// for test on client
-app.get('/api/v1/test', (req, res) => {
-	res.json({ msg: 'test route' });
-});
-
-// работа фронт и бек на одном порту (только для продакшн)
-// Для ES-модуля нужна эта конструкция
+// робота фронт і бек одному порту (тільки для продакшн)
+// Для ES-модуля потрібна ця конструкція
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -53,7 +47,7 @@ cloudinary.config({
 	api_secret: process.env.CLOUD_API_SECRET,
 });
 
-// Для продакшина будет смотреть в папку билда
+// Для продакшина дивитиметься в папку білда
 if (process.env.NODE_ENV === 'production') {
 	app.use(express.static(path.join(__dirname, 'client/build')));
 
@@ -61,7 +55,10 @@ if (process.env.NODE_ENV === 'production') {
 		res.sendFile(path.join(__dirname, 'client/build/index.html'));
 	});
 }
-// работа фронт и бек на одном порту  (только для продакшн)
+// робота фронт і бек на одному порту (тільки для продакшн)
+
+// обробляє та відправляє помилки назад на фронт
+app.use(errorHandlerMiddleware);
 
 // for img, upload to cloudinary
 app.use('/api/v1/upload', uploadRoute);
@@ -69,22 +66,20 @@ app.use('/api/v1/upload', uploadRoute);
 
 // login / register
 app.use('/api/v1/auth', authRouter);
-// login / register
 
-// ищем юзера при загрузке страницы
+// шукаємо користувача під час завантаження сторінки
 app.use('/api/v1/users', authenticateUser, userRouter);
 
-// все что касается товаров
+// все щодо товарів
 app.use('/api/v1/posts', posts);
-
-// обрабатывает и отправляет ошибки назад на фронт
-app.use(errorHandlerMiddleware);
 
 const PORT = process.env.PORT;
 
 try {
 	await mongoose.connect(process.env.MONGO_URL);
-	app.listen(PORT, () => console.log(`Сервер запущен используя порт ${PORT}`));
+	app.listen(PORT, () =>
+		console.log(`Сервер запущено, використовуючи порт ${PORT}`)
+	);
 } catch (error) {
 	console.log(error);
 	process.exit(1);
